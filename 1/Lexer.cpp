@@ -1,11 +1,8 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check
 // it. PVS-studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
 
-
 #include "Lexer.h"
 #include <cctype>
-#include <cstdint>
-#include <exception>
 
 void Lexer::advance() {
   pos += 1;
@@ -29,8 +26,7 @@ int Lexer::integer() {
 }
 std::unique_ptr<BaseToken> Lexer::get_next_token() {
   while (cur_char != '\0') {
-    if (std::isspace(cur_char))
-      skip_whitespace();
+    if (std::isspace(cur_char)) skip_whitespace();
 
     if (std::isdigit(cur_char)) {
       auto num = integer();

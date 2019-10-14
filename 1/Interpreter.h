@@ -7,17 +7,16 @@
 class Lexer;
 
 class Interpreter {
-private:
+ private:
   Lexer *lex{};
   std::unique_ptr<class BaseToken> cur_tok{};
 
-public:
-  Interpreter(Lexer *lex_t);
-  //void eat(TOKEN_TYPE t);
+ public:
+  explicit Interpreter(Lexer *lex_t);
   void eat(int t);
   int factor();
   int expr();
   int term();
 };
 
-#endif // PARSER_PARSER_H
+#endif  // PARSER_PARSER_H

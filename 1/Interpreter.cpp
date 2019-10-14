@@ -4,13 +4,6 @@
 #include "Interpreter.h"
 #include "Lexer.h"
 
-/*void Interpreter::eat(TOKEN_TYPE t) {
-  if (t == cur_tok->type)
-    cur_tok = std::move(lex->get_next_token());
-  else
-    throw "Invalid syntax";
-}*/
-
 void Interpreter::eat(int t) {
   if (t == cur_tok->type)
     cur_tok = std::move(lex->get_next_token());
