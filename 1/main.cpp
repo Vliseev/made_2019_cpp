@@ -4,11 +4,11 @@
 #include "Interpreter.h"
 #include "Lexer.h"
 
-int main() {
+int main(int argc, char* argv[]) {
     using namespace std;
     std::string s;
     try {
-        cin >> s;
+        s = argv[1];
         Lexer le(s);
         Interpreter intrp(le);
         cout << intrp.Expr() << endl;

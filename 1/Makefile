@@ -1,7 +1,7 @@
 CC=g++
 
 run: calc
-	@./calc
+	@./calc ${ARGS}
 
 test: build_test
 	@./test
