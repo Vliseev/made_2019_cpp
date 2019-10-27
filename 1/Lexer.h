@@ -3,42 +3,35 @@
 #include <memory>
 #include <string>
 
-enum TOKEN_TYPE { INTEGER, MUL, DIV, PLUS, MINUS, EOF_T, LPARENT, RPARENT };
+enum TokenType { INTEGER, MUL, DIV, PLUS, MINUS, EOF_T, LPARENT, RPARENT };
 
 struct BaseToken {
-  BaseToken(TOKEN_TYPE type) : type(type) {
-  }
-  TOKEN_TYPE type;
-  virtual ~BaseToken() = default;
-  ;
+    explicit BaseToken(const TokenType &type) : type_(type) {}
+    TokenType type_;
+    virtual int GetVal();
 };
 
 struct Token : BaseToken {
-  Token(TOKEN_TYPE type, int val) : BaseToken(type), val(val) {
-  }
-  Token(TOKEN_TYPE type, int &&val) : BaseToken(type), val(val) {
-  }
-
-  int val;
-  ~Token() override = default;
-  ;
+    Token(const TokenType &type, const int &val) : BaseToken(type), val_(val) {}
+    int val_;
+    int GetVal() override;
 };
 
 class Lexer {
- private:
-  std::string text{};
-  size_t pos{};
-  char cur_char{};
+   private:
+    std::string text_{};
+    size_t pos_{};
+    char cur_char_{};
 
- public:
-  void advance();
-  void skip_whitespace();
-  int integer();
-  Lexer(const std::string &text_in) : text(text_in) {
-    cur_char = text_in[0];
-  };
+   public:
+    void Advance();
+    void SkipWhitespace();
+    int Integer();
+    explicit Lexer(const std::string &text_in) : text_(text_in) {
+        cur_char_ = text_in[0];
+    };
 
-  std::unique_ptr<BaseToken> get_next_token();
+    std::unique_ptr<BaseToken> GetNextToken();
 };
 
-#endif  // PARSER_LEXER_H
+#endif    // PARSER_LEXER_H

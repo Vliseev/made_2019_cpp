@@ -5,17 +5,17 @@
 #include "Lexer.h"
 
 int main() {
-  using namespace std;
-  std::string s;
-  try {
-    cin >> s;
-    Lexer le(s);
-    Interpreter intrp(&le);
-    cout << intrp.expr() << endl;
-  } catch (std::exception& e) {
-    cerr << e.what() << endl;
-    return 1;
-  }
+    using namespace std;
+    std::string s;
+    try {
+        cin >> s;
+        Lexer le(s);
+        Interpreter intrp(le);
+        cout << intrp.Expr() << endl;
+    } catch (std::exception& e) {
+        cerr << e.what() << endl;
+        return 1;
+    }
 
-  return 0;
+    return 0;
 }

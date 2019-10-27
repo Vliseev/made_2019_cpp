@@ -4,60 +4,67 @@
 #include "Lexer.h"
 #include <cctype>
 
-void Lexer::advance() {
-  pos += 1;
-  if (pos > text.size() - 1)
-    cur_char = '\0';
-  else
-    cur_char = text[pos];
+void Lexer::Advance() {
+    pos_ += 1;
+    if (pos_ > text_.size() - 1)
+        cur_char_ = '\0';
+    else
+        cur_char_ = text_[pos_];
 }
-void Lexer::skip_whitespace() {
-  while (cur_char != '\0' && std::isspace(cur_char)) {
-    advance();
-  }
+void Lexer::SkipWhitespace() {
+    while (cur_char_ != '\0' && std::isspace(cur_char_)) {
+        Advance();
+    }
 }
-int Lexer::integer() {
-  std::string result{};
-  while (cur_char != '\0' && std::isdigit(cur_char)) {
-    result.push_back(cur_char);
-    advance();
-  }
-  return std::atoi(result.c_str());
+int Lexer::Integer() {
+    std::string result{};
+    while (cur_char_ != '\0' && std::isdigit(cur_char_)) {
+        result.push_back(cur_char_);
+        Advance();
+    }
+    return std::atoi(result.c_str());
 }
-std::unique_ptr<BaseToken> Lexer::get_next_token() {
-  while (cur_char != '\0') {
-    if (std::isspace(cur_char)) skip_whitespace();
+std::unique_ptr<BaseToken> Lexer::GetNextToken() {
+    while (cur_char_ != '\0') {
+        if (std::isspace(cur_char_))
+            SkipWhitespace();
 
-    if (std::isdigit(cur_char)) {
-      auto num = integer();
-      return std::make_unique<Token>(INTEGER, num);
-    }
-    if (cur_char == '+') {
-      advance();
-      return std::make_unique<BaseToken>(PLUS);
-    }
-    if (cur_char == '-') {
-      advance();
-      return std::make_unique<BaseToken>(MINUS);
-    }
-    if (cur_char == '*') {
-      advance();
-      return std::make_unique<BaseToken>(MUL);
-    }
-    if (cur_char == '/') {
-      advance();
-      return std::make_unique<BaseToken>(DIV);
-    }
-    if (cur_char == '(') {
-      advance();
-      return std::make_unique<BaseToken>(LPARENT);
-    }
-    if (cur_char == ')') {
-      advance();
-      return std::make_unique<BaseToken>(RPARENT);
-    }
+        if (std::isdigit(cur_char_)) {
+            auto num = Integer();
+            return std::make_unique<Token>(INTEGER, num);
+        }
+        if (cur_char_ == '+') {
+            Advance();
+            return std::make_unique<BaseToken>(PLUS);
+        }
+        if (cur_char_ == '-') {
+            Advance();
+            return std::make_unique<BaseToken>(MINUS);
+        }
+        if (cur_char_ == '*') {
+            Advance();
+            return std::make_unique<BaseToken>(MUL);
+        }
+        if (cur_char_ == '/') {
+            Advance();
+            return std::make_unique<BaseToken>(DIV);
+        }
+        if (cur_char_ == '(') {
+            Advance();
+            return std::make_unique<BaseToken>(LPARENT);
+        }
+        if (cur_char_ == ')') {
+            Advance();
+            return std::make_unique<BaseToken>(RPARENT);
+        }
 
-    throw std::logic_error("Invalid character");
-  }
-  return std::make_unique<BaseToken>(EOF_T);
+        throw std::logic_error("Invalid character");
+    }
+    return std::make_unique<BaseToken>(EOF_T);
+}
+int BaseToken::GetVal() {
+    throw std::logic_error("Base token has no value");
+}
+int Token::GetVal() {
+    return val_;
 }
