@@ -3,8 +3,7 @@
 #include "linear_allocator.h"
 LinearAllocator::LinearAllocator(size_t max_size)
     : max_size_(max_size), size_(0) {
-    if (buf_ == nullptr)
-        buf_ = new char[max_size];
+    buf_ = new char[max_size];
 }
 char* LinearAllocator::Alloc(size_t size) {
     if (size + size_ <= max_size_) {
