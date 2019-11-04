@@ -5,24 +5,24 @@
 ParserBuilder Parser::Make() {
     return ParserBuilder();
 }
-ParserBuilder& ParserBuilder::AddBegCalback(
-    const std::function<void(void)>& beg_callback) {
+ParserBuilder&
+ParserBuilder::AddBegCallback(const Parser::VoidCallback& beg_callback) {
     parser_.beg_callback_ = beg_callback;
     return *this;
 }
-ParserBuilder& ParserBuilder::AddDigCalback(
-    const std::function<void(std::string_view)>& digit_calback) {
-    parser_.digit_calback_ = digit_calback;
+ParserBuilder&
+ParserBuilder::AddDigCallback(const Parser::DigitCallback& digit_calback) {
+    parser_.digit_callback_ = digit_calback;
     return *this;
 }
-ParserBuilder& ParserBuilder::AddStrCalback(
-    const std::function<void(std::string_view)>& string_calback) {
-    parser_.string_calback_ = string_calback;
+ParserBuilder&
+ParserBuilder::AddStrCallback(const Parser::StringCallback& string_calback) {
+    parser_.string_callback_ = string_calback;
     return *this;
 }
-ParserBuilder& ParserBuilder::AddEndCalback(
-    const std::function<void(void)>& end_calback) {
-    parser_.end_calback_ = end_calback;
+ParserBuilder&
+ParserBuilder::AddEndCallback(const Parser::VoidCallback& end_calback) {
+    parser_.end_callback_ = end_calback;
     return *this;
 }
 Parser ParserBuilder::Build() {
@@ -65,22 +65,26 @@ void Parser::Parse(std::string_view p_str) {
                 new_tok_ = true;
                 CallCallback();
             }
-        }
-        if (std::isdigit(*cur_it_)) {
-            UpdateDigit(cur_it_);
-        } else if (std::isalpha(*cur_it_)) {
-            UpdateChar(cur_it_);
+        } else if (new_tok_) {
+            beg_tok_ = cur_it_;
+            new_tok_ = false;
         }
     }
     if (!new_tok_)
         CallCallback();
-    if (end_calback_)
-        end_calback_();
+    if (end_callback_)
+        end_callback_();
 }
 void Parser::CallCallback() {
+    int result;
     std::string_view view(beg_tok_, std::distance(beg_tok_, cur_it_));
-    if (cur_type_ == TokType::DIGIT && digit_calback_)
-        digit_calback_(view);
-    else if (cur_type_ == TokType::STRING && string_calback_)
-        string_calback_(view);
+    if (auto [p, ec] =
+            std::from_chars(view.data(), view.data() + view.size(), result);
+        ec == std::errc()) {
+        if (digit_callback_)
+            digit_callback_(result);
+    } else {
+        if (string_callback_)
+            string_callback_(view);
+    }
 }

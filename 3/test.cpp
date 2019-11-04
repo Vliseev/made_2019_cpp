@@ -6,20 +6,20 @@ void Test() {
     std::ostringstream oss;
 
     Parser p = Parser::Make()
-                   .AddBegCalback([&oss]() {
+                   .AddBegCallback([&oss]() {
                        //clang-format off
                        oss << "Start parsing" << std::endl;
                    })
-                   .AddDigCalback([&oss](std::string_view v) {
+                   .AddDigCallback([&oss](int v) {
                        //clang-format off
 
                        oss << "Digit callback: " << v << std::endl;
                    })
-                   .AddStrCalback([&oss](std::string_view v) {
+                   .AddStrCallback([&oss](std::string_view v) {
                        //clang-format off
                        oss << "Str callback: " << v << std::endl;
                    })
-                   .AddEndCalback([&oss]() {
+                   .AddEndCallback([&oss]() {
                        //clang-format off
                        oss << "End parsing" << std::endl;
                    })
@@ -39,7 +39,7 @@ void Test() {
     oss.clear();
     oss.str("");
 
-    s = std::string("  abc xyz b1as 222 rrrrr");
+    s = std::string("  abc xyz   b1as 222 rrrrr");
     ans =
         "Start parsing\n"
         "Str callback: abc\n"
@@ -56,7 +56,7 @@ void Test() {
 void EmptyTest() {
     std::ostringstream oss;
     Parser p = Parser::Make()
-                   .AddDigCalback([&oss](std::string_view v) {
+                   .AddDigCallback([&oss](int v) {
                        //clang-format off
 
                        oss << "Digit callback: " << v << std::endl;
@@ -72,5 +72,6 @@ int main() {
     TestRunner tr;
     RUN_TEST(tr, Test);
     RUN_TEST(tr, EmptyTest);
+
     return 0;
 }

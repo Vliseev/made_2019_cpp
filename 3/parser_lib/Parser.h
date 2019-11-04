@@ -1,13 +1,19 @@
 #pragma once
+#include <charconv>
 #include <functional>
 #include <iostream>
 #include <string>
 #include <string_view>
+#include <variant>
 
 class ParserBuilder;
 
 class Parser {
    public:
+    using VoidCallback = std::function<void(void)>;
+    using StringCallback = std::function<void(std::string_view)>;
+    using DigitCallback = std::function<void(int)>;
+
     friend class ParserBuilder;
     static ParserBuilder Make();
     enum class TokType { STRING, DIGIT };
@@ -15,13 +21,12 @@ class Parser {
     Parser() = default;
 
    private:
-    std::function<void(void)> beg_callback_;
-    std::function<void(std::string_view)> digit_calback_;
-    std::function<void(std::string_view)> string_calback_;
-    std::function<void()> end_calback_;
+    Parser::VoidCallback beg_callback_;
+    Parser::DigitCallback digit_callback_;
+    Parser::StringCallback string_callback_;
+    Parser::VoidCallback end_callback_;
 
     TokType cur_type_{};
-    std::string_view parsed_str_{};
     std::string_view::iterator beg_tok_{};
     std::string_view::iterator cur_it_{};
     bool new_tok_{};
@@ -35,15 +40,10 @@ class ParserBuilder {
    public:
     friend class Parser;
 
-    ParserBuilder& AddBegCalback(const std::function<void(void)>& beg_callback);
-
-    ParserBuilder& AddDigCalback(
-        const std::function<void(std::string_view)>& digit_calback);
-
-    ParserBuilder& AddStrCalback(
-        const std::function<void(std::string_view)>& string_calback);
-
-    ParserBuilder& AddEndCalback(const std::function<void(void)>& end_calback);
+    ParserBuilder& AddBegCallback(const Parser::VoidCallback& beg_callback);
+    ParserBuilder& AddDigCallback(const Parser::DigitCallback& digit_calback);
+    ParserBuilder& AddStrCallback(const Parser::StringCallback& string_calback);
+    ParserBuilder& AddEndCallback(const Parser::VoidCallback& end_calback);
 
     ParserBuilder(const ParserBuilder&) = delete;
     ParserBuilder& operator=(const ParserBuilder&) = delete;
