@@ -5,23 +5,23 @@
 ParserBuilder Parser::Make() {
     return ParserBuilder();
 }
-ParserBuilder&
-ParserBuilder::AddBegCallback(const Parser::VoidCallback& beg_callback) {
+ParserBuilder& ParserBuilder::AddBegCallback(
+    const Parser::VoidCallback& beg_callback) {
     parser_.beg_callback_ = beg_callback;
     return *this;
 }
-ParserBuilder&
-ParserBuilder::AddDigCallback(const Parser::DigitCallback& digit_calback) {
+ParserBuilder& ParserBuilder::AddDigCallback(
+    const Parser::DigitCallback& digit_calback) {
     parser_.digit_callback_ = digit_calback;
     return *this;
 }
-ParserBuilder&
-ParserBuilder::AddStrCallback(const Parser::StringCallback& string_calback) {
+ParserBuilder& ParserBuilder::AddStrCallback(
+    const Parser::StringCallback& string_calback) {
     parser_.string_callback_ = string_calback;
     return *this;
 }
-ParserBuilder&
-ParserBuilder::AddEndCallback(const Parser::VoidCallback& end_calback) {
+ParserBuilder& ParserBuilder::AddEndCallback(
+    const Parser::VoidCallback& end_calback) {
     parser_.end_callback_ = end_calback;
     return *this;
 }
@@ -79,7 +79,7 @@ void Parser::CallCallback() {
     int result;
     std::string_view view(beg_tok_, std::distance(beg_tok_, cur_it_));
     if (auto [p, ec] =
-            std::from_chars(view.data(), view.data() + view.size(), result);
+            std::from_chars(std::begin(view), std::end(view), result);
         ec == std::errc()) {
         if (digit_callback_)
             digit_callback_(result);
