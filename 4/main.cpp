@@ -28,11 +28,13 @@ void TestAccess() {
             m[kI][kJ] = kI * m.GetColumns() + kJ;
         }
     }
+
+    m *= 5;
     const Matrix& m_ref = m;
 
     for (int kI = 0; kI < m.GetRows(); ++kI) {
         for (int kJ = 0; kJ < m.GetColumns(); ++kJ) {
-            ASSERT_EQUAL(m_ref[kI][kJ], kI * m_ref.GetColumns() + kJ);
+            ASSERT_EQUAL(m_ref[kI][kJ], 5 * (kI * m_ref.GetColumns() + kJ));
         }
     }
 }

@@ -22,7 +22,7 @@ bool Matrix::operator!=(const Matrix& rhs) const {
 }
 Matrix& Matrix::operator*=(int val) {
     std::for_each(data_, data_ + n_row_ * n_col_,
-                  [val](int el) -> int { return el + val; });
+                  [val](int &el) { el *= val; });
     return *this;
 }
 
