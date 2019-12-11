@@ -91,6 +91,11 @@ class Vector {
           allocator_(){};
     explicit Vector(size_t n);
     Vector(std::initializer_list<T> l);
+    Vector(const Vector& other);
+    Vector(Vector&& other) noexcept;
+
+    Vector& operator=(const Vector& other);
+    Vector& operator=(Vector&& other) noexcept;
 
     ~Vector();
 
@@ -274,8 +279,8 @@ void Vector<T, Allocator>::Resize(size_t new_size) {
 }
 
 template <class T, class Allocator>
-typename Vector<T, Allocator>::refference Vector<T, Allocator>::operator[](
-    size_t n) {
+typename Vector<T, Allocator>::refference
+    Vector<T, Allocator>::operator[](size_t n) {
     return *(this->m_beg_ + n);
 }
 
@@ -290,4 +295,55 @@ void Vector<T, Allocator>::Reserve(size_t new_size) {
     size_t cap = std::distance(m_beg_, m_end_storage_);
     if (cap < new_size)
         ReallocBuf(new_size);
+}
+template <class T, class Allocator>
+Vector<T, Allocator>::Vector(const Vector& other) {
+    auto other_size = std::distance(other.m_beg_, other.m_end_);
+
+    m_beg_ = static_cast<pointer>(allocator_.allocate(sizeof(T) * other_size));
+    m_end_storage_ = m_beg_ + other_size;
+    m_end_ = m_end_storage_;
+
+    auto beg_p = m_beg_;
+    for (size_t i = 0; i < other_size; ++i) {
+        ::new (beg_p++) T(other[i]);
+    }
+}
+template <class T, class Allocator>
+Vector<T, Allocator>::Vector(Vector&& other) noexcept {
+    m_beg_ = other.m_beg_;
+    m_end_ = other.m_end_;
+    m_end_storage_ = other.m_end_storage_;
+
+    other.m_beg_ = other.m_end_ = other.m_end_storage_ = nullptr;
+}
+template <class T, class Allocator>
+Vector<T, Allocator>& Vector<T, Allocator>::operator=(const Vector& other) {
+    if (std::addressof(other) == this)
+        return *this;
+
+    auto other_size = std::distance(other.m_beg_, other.m_end_);
+
+    m_beg_ = static_cast<pointer>(allocator_.allocate(sizeof(T) * other_size));
+    m_end_storage_ = m_beg_ + other_size;
+    m_end_ = m_end_storage_;
+
+    auto beg_p = m_beg_;
+    for (size_t i = 0; i < other_size; ++i) {
+        ::new (beg_p++) T(other[i]);
+    }
+    return *this;
+}
+template <class T, class Allocator>
+Vector<T, Allocator>& Vector<T, Allocator>::operator=(Vector&& other) noexcept {
+    if (std::addressof(other) == this)
+        return *this;
+
+    m_beg_ = other.m_beg_;
+    m_end_ = other.m_end_;
+    m_end_storage_ = other.m_end_storage_;
+
+    other.m_beg_ = other.m_end_ = other.m_end_storage_ = nullptr;
+
+    return *this;
 }
