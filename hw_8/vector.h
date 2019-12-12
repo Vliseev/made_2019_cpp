@@ -76,8 +76,8 @@ template <class T, class Allocator = std::allocator<T>>
 class Vector {
     using value_type = T;
     using pointer = T*;
-    using refference = T&;
-    using const_refference = const T&;
+    using reference = T&;
+    using const_reference = const T&;
     using iterator = Iterator<T>;
     using reverse_iterator = std::reverse_iterator<iterator>;
 
@@ -108,8 +108,8 @@ class Vector {
     void Resize(size_t new_size);
     void Reserve(size_t new_size);
 
-    refference operator[](size_t n);
-    const_refference operator[](size_t n) const;
+    reference operator[](size_t n);
+    const_reference operator[](size_t n) const;
 
     iterator begin() {
         return iterator(m_beg_);
@@ -288,13 +288,13 @@ void Vector<T, Allocator>::Resize(size_t new_size) {
 }
 
 template <class T, class Allocator>
-typename Vector<T, Allocator>::refference
+typename Vector<T, Allocator>::reference
     Vector<T, Allocator>::operator[](size_t n) {
     return *(this->m_beg_ + n);
 }
 
 template <class T, class Allocator>
-typename Vector<T, Allocator>::const_refference
+typename Vector<T, Allocator>::const_reference
     Vector<T, Allocator>::operator[](size_t n) const {
     return *(this->m_beg_ + n);
 }
