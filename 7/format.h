@@ -21,34 +21,33 @@ int GetIndex(int beg, int end, const char* s) {
     }
 }
 
-template <size_t I>
-struct VisitImpl {
-    template <typename T, typename F>
-    static void Visit(T& tup, size_t idx, F fun) {
-        if (idx == I - 1) {
-            fun(std::get<I - 1>(tup));
-        } else {
-            VisitImpl<I - 1>::Visit(tup, idx, fun);
-        }
-    }
-};
-
-template <>
-struct VisitImpl<0> {
-    template <typename T, typename F>
-    static void Visit(T& tup, size_t idx, F fun) {
-        throw std::runtime_error("invalid syntax");
-    }
-};
-
-template <typename F, typename... Ts>
-void VisitAt(std::tuple<Ts...> const& tup, size_t idx, F fun) {
-    VisitImpl<sizeof...(Ts)>::Visit(tup, idx, fun);
+template <class Tuple, std::size_t... Is>
+void PrinTuple(std::ostream& os, const Tuple& t, std::index_sequence<Is...>) {
+    ((os << (Is == 0 ? "" : " ") << std::get<Is>(t)), ...);
 }
 
-template <typename F, typename... Ts>
-void VisitAt(std::tuple<Ts...>& tup, size_t idx, F fun) {
-    VisitImpl<sizeof...(Ts)>::Visit(tup, idx, fun);
+/*!
+ * @brief example is taken from the
+ * https://en.cppreference.com/w/cpp/utility/integer_sequence
+ * @tparam Args
+ * @param args
+ * @return
+ */
+template <class... Args>
+std::vector<std::string> ParseArgs(Args... args) {
+    std::stringstream iss;
+    std::vector<std::string> args_v(sizeof...(args));
+
+    auto tup = std::make_tuple(args...);
+    PrinTuple(iss, tup, std::index_sequence_for<Args...>{});
+    std::string s;
+    args_v.clear();
+
+    while (iss >> s) {
+        args_v.push_back(s);
+    }
+
+    return args_v;
 }
 
 }    // namespace
@@ -58,8 +57,8 @@ std::string Format(const char* s, Args&&... args) {
     auto ftms_len = strlen(s);
     std::ostringstream oss;
 
-    auto args_tuple = std::make_tuple(args...);
-    auto arg_size = sizeof...(Args);
+    std::vector<std::string> args_v = ParseArgs(args...);
+    int arg_size = args_v.size();
     int beg_fmt = -1;
 
     for (int i = 0; i < ftms_len; i++) {
@@ -73,10 +72,9 @@ std::string Format(const char* s, Args&&... args) {
                 throw std::runtime_error("invalid syntax");
 
             auto idx = GetIndex(beg_fmt, i, s);
-            if (idx > arg_size)
+            if (idx >= arg_size)
                 throw std::runtime_error("invalid syntax");
-
-            VisitAt(args_tuple, idx, [&oss](const auto& el) { oss << el; });
+            oss << args_v[idx];
             beg_fmt = -1;
 
         } else if (beg_fmt == -1) {

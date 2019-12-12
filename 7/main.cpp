@@ -36,6 +36,7 @@ void Test2() {
     ASSERT_EQUAL(s, " one + one = 2 ")
 }
 
+
 int main() {
     TestRunner tr;
     RUN_TEST(tr, Test1);
