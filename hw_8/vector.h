@@ -137,6 +137,7 @@ class Vector {
     void ConstructRange(pointer begin, pointer end);
     void DestroyRange(pointer begin, pointer end);
     void CopyRange(pointer begin, pointer end, pointer dest);
+    void MoveRange(pointer begin, pointer end, pointer dest);
 };
 
 template <class T, class Allocator>
@@ -172,7 +173,7 @@ void Vector<T, Allocator>::ReallocBuf(size_t new_cap) {
     m_end_ = m_beg_ + std::distance(old_beg, old_end);
 
     ConstructRange(m_beg_, m_end_);
-    CopyRange(old_beg, old_end, m_beg_);
+    MoveRange(old_beg, old_end, m_beg_);
     DestroyRange(old_beg, old_end);
     //    std::copy(old_beg, old_end, m_beg_);
     //    std::destroy_n(old_beg, std::distance(old_beg, old_end));
@@ -234,6 +235,14 @@ void Vector<T, Allocator>::CopyRange(Vector::pointer begin, Vector::pointer end,
 }
 
 template <class T, class Allocator>
+void Vector<T, Allocator>::MoveRange(Vector::pointer begin, Vector::pointer end,
+                                     Vector::pointer dest) {
+    while (begin != end) {
+        new (dest++) T(std::move(*(begin++)));
+    }
+}
+
+template <class T, class Allocator>
 void Vector<T, Allocator>::PopBack() {
     m_end_--;
     m_end_->~T();
@@ -289,7 +298,6 @@ typename Vector<T, Allocator>::const_refference
     Vector<T, Allocator>::operator[](size_t n) const {
     return *(this->m_beg_ + n);
 }
-
 template <class T, class Allocator>
 void Vector<T, Allocator>::Reserve(size_t new_size) {
     size_t cap = std::distance(m_beg_, m_end_storage_);
