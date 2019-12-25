@@ -24,7 +24,7 @@ class ThreadPool {
     std::mutex mut_{};
     std::condition_variable con_{};
 
-    bool can_stop_;
+    uint64_t can_stop_;
     std::vector<std::thread> workers_;
     std::queue<std::packaged_task<void()>> task_queue_;
 
