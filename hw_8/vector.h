@@ -157,8 +157,8 @@ Vector<T, Allocator>::Vector(std::initializer_list<T> l) {
     m_end_ = m_end_storage_;
 
     auto beg_p = m_beg_;
-    for (auto& el : l) {
-        ::new (beg_p++) T(el);
+    for (auto&& el : l) {
+        allocator_.construct(beg_p++, std::move(el));
     }
 }
 
@@ -183,22 +183,22 @@ void Vector<T, Allocator>::ReallocBuf(size_t new_cap) {
 template <class T, class Allocator>
 void Vector<T, Allocator>::PushBack(const T& value) {
     if (m_end_ != m_end_storage_) {
-        ::new ((void*)m_end_++) T(value);
+        allocator_.construct(m_end_++, value);
         return;
     } else {
         ReallocBuf(std::distance(m_beg_, m_end_storage_) * 2 + 1);
-        ::new ((void*)m_end_++) T(value);
+        allocator_.construct(m_end_++, value);
         return;
     }
 }
 template <class T, class Allocator>
 void Vector<T, Allocator>::PushBack(T&& value) {
     if (m_end_ != m_end_storage_) {
-        ::new ((void*)m_end_++) T(std::move(value));
+        allocator_.construct(m_end_++, std::move(value));
         return;
     } else {
         ReallocBuf(std::distance(m_beg_, m_end_storage_) * 2 + 1);
-        ::new ((void*)m_end_++) T(std::move(value));
+        allocator_.construct(m_end_++, std::move(value));
         return;
     }
 }
@@ -214,7 +214,7 @@ template <class T, class Allocator>
 void Vector<T, Allocator>::ConstructRange(Vector::pointer begin,
                                           Vector::pointer end) {
     while (begin != end) {
-        new (begin++) T();
+        allocator_.construct(begin++);
     }
 }
 
@@ -222,7 +222,7 @@ template <class T, class Allocator>
 void Vector<T, Allocator>::DestroyRange(Vector::pointer begin,
                                         Vector::pointer end) {
     while (begin != end) {
-        (begin++)->~T();
+        allocator_.destroy(begin++);
     }
 }
 
@@ -230,7 +230,7 @@ template <class T, class Allocator>
 void Vector<T, Allocator>::CopyRange(Vector::pointer begin, Vector::pointer end,
                                      Vector::pointer dest) {
     while (begin != end) {
-        new (dest++) T(*(begin++));
+        allocator_.construct(dest++, *(begin++));
     }
 }
 
@@ -238,14 +238,14 @@ template <class T, class Allocator>
 void Vector<T, Allocator>::MoveRange(Vector::pointer begin, Vector::pointer end,
                                      Vector::pointer dest) {
     while (begin != end) {
-        new (dest++) T(std::move(*(begin++)));
+        allocator_.construct(dest++, std::move(*(begin++)));
     }
 }
 
 template <class T, class Allocator>
 void Vector<T, Allocator>::PopBack() {
     m_end_--;
-    m_end_->~T();
+    allocator_.destroy(m_end_);
 }
 
 template <class T, class Allocator>
@@ -314,7 +314,7 @@ Vector<T, Allocator>::Vector(const Vector& other) {
 
     auto beg_p = m_beg_;
     for (size_t i = 0; i < other_size; ++i) {
-        ::new (beg_p++) T(other[i]);
+        allocator_.construct(beg_p++, other[i]);
     }
 }
 template <class T, class Allocator>
@@ -338,7 +338,7 @@ Vector<T, Allocator>& Vector<T, Allocator>::operator=(const Vector& other) {
 
     auto beg_p = m_beg_;
     for (size_t i = 0; i < other_size; ++i) {
-        ::new (beg_p++) T(other[i]);
+        allocator_.construct(beg_p++, other[i]);
     }
     return *this;
 }
