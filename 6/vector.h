@@ -377,4 +377,3 @@ Vector<T, Allocator>& Vector<T, Allocator>::operator=(Vector&& other) noexcept {
 
     return *this;
 }
-
