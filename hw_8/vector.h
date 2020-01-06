@@ -96,20 +96,35 @@ class Vector {
 
     Vector& operator=(const Vector& other);
     Vector& operator=(Vector&& other) noexcept;
+    bool operator==(const Vector& rhs) const {
+        return this->Size() == rhs.Size() &&
+            std::equal(m_beg_, m_end_, rhs.m_beg_);
+    }
+    bool operator!=(const Vector& rhs) const {
+        return !(rhs == *this);
+    }
 
     ~Vector();
 
     void PushBack(const T& value);
     void PushBack(T&&);
     void PopBack();
-    bool Empty();
+    bool Empty() const;
     void Clear();
-    size_t Size();
+    size_t Size() const;
     void Resize(size_t new_size);
     void Reserve(size_t new_size);
 
     reference operator[](size_t n);
     const_reference operator[](size_t n) const;
+
+    reference Back() {
+        return *(m_end_ - 1);
+    }
+
+    const_reference Back() const {
+        return *(m_end_ - 1);
+    }
 
     iterator begin() {
         return iterator(m_beg_);
@@ -249,12 +264,12 @@ void Vector<T, Allocator>::PopBack() {
 }
 
 template <class T, class Allocator>
-bool Vector<T, Allocator>::Empty() {
+bool Vector<T, Allocator>::Empty() const {
     return m_beg_ == m_end_;
 }
 
 template <class T, class Allocator>
-size_t Vector<T, Allocator>::Size() {
+size_t Vector<T, Allocator>::Size() const {
     return std::distance(m_beg_, m_end_);
 }
 
@@ -289,13 +304,13 @@ void Vector<T, Allocator>::Resize(size_t new_size) {
 
 template <class T, class Allocator>
 typename Vector<T, Allocator>::reference
-    Vector<T, Allocator>::operator[](size_t n) {
+Vector<T, Allocator>::operator[](size_t n) {
     return *(this->m_beg_ + n);
 }
 
 template <class T, class Allocator>
 typename Vector<T, Allocator>::const_reference
-    Vector<T, Allocator>::operator[](size_t n) const {
+Vector<T, Allocator>::operator[](size_t n) const {
     return *(this->m_beg_ + n);
 }
 template <class T, class Allocator>
@@ -307,7 +322,6 @@ void Vector<T, Allocator>::Reserve(size_t new_size) {
 template <class T, class Allocator>
 Vector<T, Allocator>::Vector(const Vector& other) {
     auto other_size = std::distance(other.m_beg_, other.m_end_);
-
     m_beg_ = static_cast<pointer>(allocator_.allocate(sizeof(T) * other_size));
     m_end_storage_ = m_beg_ + other_size;
     m_end_ = m_end_storage_;
@@ -332,6 +346,10 @@ Vector<T, Allocator>& Vector<T, Allocator>::operator=(const Vector& other) {
 
     auto other_size = std::distance(other.m_beg_, other.m_end_);
 
+    // TODO: переписать эффективнее
+    DestroyRange(m_beg_, m_end_);
+    allocator_.deallocate(m_beg_, std::distance(m_beg_, m_end_storage_));
+
     m_beg_ = static_cast<pointer>(allocator_.allocate(sizeof(T) * other_size));
     m_end_storage_ = m_beg_ + other_size;
     m_end_ = m_end_storage_;
@@ -346,6 +364,10 @@ template <class T, class Allocator>
 Vector<T, Allocator>& Vector<T, Allocator>::operator=(Vector&& other) noexcept {
     if (std::addressof(other) == this)
         return *this;
+
+    // TODO: переписать эффективнее
+    DestroyRange(m_beg_, m_end_);
+    allocator_.deallocate(m_beg_, std::distance(m_beg_, m_end_storage_));
 
     m_beg_ = other.m_beg_;
     m_end_ = other.m_end_;
