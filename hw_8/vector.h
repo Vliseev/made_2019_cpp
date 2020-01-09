@@ -99,6 +99,7 @@ class Vector {
     bool operator==(const Vector& rhs) const {
         return this->Size() == rhs.Size() &&
                std::equal(m_beg_, m_end_, rhs.m_beg_);
+
     }
     bool operator!=(const Vector& rhs) const {
         return !(rhs == *this);
@@ -304,13 +305,13 @@ void Vector<T, Allocator>::Resize(size_t new_size) {
 
 template <class T, class Allocator>
 typename Vector<T, Allocator>::reference
-    Vector<T, Allocator>::operator[](size_t n) {
+Vector<T, Allocator>::operator[](size_t n) {
     return *(this->m_beg_ + n);
 }
 
 template <class T, class Allocator>
 typename Vector<T, Allocator>::const_reference
-    Vector<T, Allocator>::operator[](size_t n) const {
+Vector<T, Allocator>::operator[](size_t n) const {
     return *(this->m_beg_ + n);
 }
 template <class T, class Allocator>
